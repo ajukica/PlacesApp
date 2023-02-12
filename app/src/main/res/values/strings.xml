@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PlacesApp</string>
+    <string name="city"></string>
+    <string name="state"></string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="address">Address:</string>
+</resources>
