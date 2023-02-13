@@ -170,11 +170,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 StringBuilder sb = new StringBuilder();
 
-                latitude.append(String.format("%.6f °", location.getLatitude()));
-                longitude.append(String.format("%.6f ", location.getLongitude()));
-                address.append("\n" + String.format(addresses.get(0).getAddressLine(0)));
-                city.append(String.format(addresses.get(0).getLocality()));
-                state.append(String.format(addresses.get(0).getCountryName()));
+                latitude.setText("Latitude: " + String.format("%.6f °", location.getLatitude()));
+                longitude.setText("Longtitude: " + String.format("%.6f °", location.getLongitude()));
+                address.setText("Address: \n" + String.format(addresses.get(0).getAddressLine(0)));
+                city.setText(String.format(addresses.get(0).getLocality()));
+                state.setText(String.format(addresses.get(0).getCountryName()));
 
             }
         };

@@ -69,7 +69,7 @@ public class PlaceActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String grad = intent.getStringExtra("name");
-        int id = intent.getIntExtra("id",0);
+        int id = intent.getIntExtra("id", 0);
 
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
@@ -87,11 +87,10 @@ public class PlaceActivity extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
 
                         try {
-                                JSONObject jresponse = response.getJSONObject(0);
-                                city.setText(jresponse.getString("display_name"));
-                                latitude.append(jresponse.getString("lat"));
-                                longitude.append(jresponse.getString("lon"));
-
+                            JSONObject jresponse = response.getJSONObject(0);
+                            city.setText(jresponse.getString("display_name"));
+                            latitude.setText("Latitude: " + jresponse.getString("lat") + " °");
+                            longitude.setText("Longtitude: " + jresponse.getString("lon") + " °");
 
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
@@ -108,8 +107,6 @@ public class PlaceActivity extends AppCompatActivity {
         );
 
         queue.add(jsonArrayRequest);
-
-
 
 
         findViewById(R.id.imageMenu).setOnClickListener(new OnClickListener() {
@@ -159,7 +156,7 @@ public class PlaceActivity extends AppCompatActivity {
 
                 db.lokacijaDAO().delete(id);
                 Toast.makeText(PlaceActivity.this, "Uspješno ste izbrisali lokaciju", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(PlaceActivity.this,MainActivity.class);
+                Intent intent = new Intent(PlaceActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -169,7 +166,7 @@ public class PlaceActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(PlaceActivity.this,MainActivity.class);
+        Intent intent = new Intent(PlaceActivity.this, MainActivity.class);
         startActivity(intent);
         super.onBackPressed();
     }
