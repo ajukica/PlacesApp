@@ -74,9 +74,6 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
 
 
-
-
-
     private final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
         @Override
         public void onActivityResult(Map<String, Boolean> result) {
@@ -99,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
-
 
 
         findViewById(R.id.imageMenu).setOnClickListener(new OnClickListener() {
@@ -126,9 +122,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                         Lokacije lista = lokacijeLista.get(position);
-                        Intent intent = new Intent(MainActivity.this,PlaceActivity.class);
+                        Intent intent = new Intent(MainActivity.this, PlaceActivity.class);
                         intent.putExtra("name", lista.name);
-                        intent.putExtra("id",lista.id);
+                        intent.putExtra("id", lista.id);
                         startActivity(intent);
                     }
                 });
@@ -155,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        locationRequest = new LocationRequest.Builder(100)
+        locationRequest = new LocationRequest.Builder(1000)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
                 .setMinUpdateDistanceMeters(10)
                 .build();
@@ -187,16 +183,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void saveData() {
         String ime = lokacija.getText().toString().trim();
-        Lokacije lokacija = new Lokacije(ime);
-        LokacijeDatabase db = Room.databaseBuilder(getApplicationContext(),
-                LokacijeDatabase.class, "lokacije-database").allowMainThreadQueries().build();
+        if (ime.matches("")) {
+            Toast.makeText(this, "Molimo Vas unesite lokaciju", Toast.LENGTH_SHORT).show();
+            return;
 
-        db.lokacijaDAO().insertAll(lokacija);
-        Toast.makeText(this, "Lokacija uspješno spremljena", Toast.LENGTH_SHORT).show();
+        } else {
 
+            Lokacije lokacija = new Lokacije(ime);
+            LokacijeDatabase db = Room.databaseBuilder(getApplicationContext(),
+                    LokacijeDatabase.class, "lokacije-database").allowMainThreadQueries().build();
+
+            db.lokacijaDAO().insertAll(lokacija);
+            Toast.makeText(this, "Lokacija uspješno spremljena", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
