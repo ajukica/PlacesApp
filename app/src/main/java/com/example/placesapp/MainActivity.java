@@ -10,11 +10,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,7 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -42,13 +37,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.material.navigation.NavigationView;
 
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -74,18 +68,15 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
 
 
-    private final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
-        @Override
-        public void onActivityResult(Map<String, Boolean> result) {
-            if (Boolean.TRUE.equals(result.get(LOCATION_PERMISSIONS[0]))) {
-                startLocationUpdates();
+    private final ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+        if (Boolean.TRUE.equals(result.get(LOCATION_PERMISSIONS[0]))) {
+            startLocationUpdates();
+        } else {
+            if (shouldShowRequestPermissionRationale(LOCATION_PERMISSIONS[0])) {
+                showPermissionDialog();
             } else {
-                if (shouldShowRequestPermissionRationale(LOCATION_PERMISSIONS[0])) {
-                    showPermissionDialog();
-                } else {
-                    Toast.makeText(MainActivity.this, "Molimo omogućite dozvole u postavkama", Toast.LENGTH_LONG).show();
-                    finish();
-                }
+                Toast.makeText(MainActivity.this, "Molimo omogućite dozvole u postavkama", Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     });
@@ -98,39 +89,31 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
 
-        findViewById(R.id.imageMenu).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawerLayout.openDrawer(GravityCompat.START);
+        findViewById(R.id.imageMenu).setOnClickListener(view -> {
+            drawerLayout.openDrawer(GravityCompat.START);
 
-                LokacijeDatabase db = Room.databaseBuilder(getApplicationContext(),
-                        LokacijeDatabase.class, "lokacije-database").allowMainThreadQueries().build();
+            LokacijeDatabase db = Room.databaseBuilder(getApplicationContext(),
+                    LokacijeDatabase.class, "lokacije-database").allowMainThreadQueries().build();
 
-                List<Lokacije> lokacijeLista = db.lokacijaDAO().getAllLokacije();
+            List<Lokacije> lokacijeLista = db.lokacijaDAO().getAllLokacije();
 
-                ListView lv = (ListView) findViewById(R.id.list);
-                String[] lv_arr = new String[lokacijeLista.size()];
+            ListView lv = findViewById(R.id.list);
+            String[] lv_arr = new String[lokacijeLista.size()];
 
-                for (int i = 0; i < lokacijeLista.size(); i++) {
-                    lv_arr[i] = (lokacijeLista.get(i)).name;
-                }
-
-                lv.setAdapter(new ArrayAdapter<String>(MainActivity.this,
-                        android.R.layout.simple_list_item_1, lv_arr));
-
-                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                        Lokacije lista = lokacijeLista.get(position);
-                        Intent intent = new Intent(MainActivity.this, PlaceActivity.class);
-                        intent.putExtra("name", lista.name);
-                        intent.putExtra("id", lista.id);
-                        startActivity(intent);
-                    }
-                });
+            for (int i = 0; i < lokacijeLista.size(); i++) {
+                lv_arr[i] = (lokacijeLista.get(i)).name;
             }
 
+            lv.setAdapter(new ArrayAdapter<>(MainActivity.this,
+                    android.R.layout.simple_list_item_1, lv_arr));
 
+            lv.setOnItemClickListener((adapterView, view1, position, id) -> {
+                Lokacije lista = lokacijeLista.get(position);
+                Intent intent = new Intent(MainActivity.this, PlaceActivity.class);
+                intent.putExtra("name", lista.name);
+                intent.putExtra("id", lista.id);
+                startActivity(intent);
+            });
         });
 
 
@@ -143,12 +126,9 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.button);
 
 
-        button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveData();
-                lokacija.setText("");
-            }
+        button.setOnClickListener(view -> {
+            saveData();
+            lokacija.setText("");
         });
 
         locationRequest = new LocationRequest.Builder(1000)
@@ -162,13 +142,12 @@ public class MainActivity extends AppCompatActivity {
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 Location location = locationResult.getLastLocation();
                 Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-                List<Address> addresses = null;
+                List<Address> addresses;
                 try {
                     addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                StringBuilder sb = new StringBuilder();
 
                 latitude.setText("Latitude: " + String.format("%.6f °", location.getLatitude()));
                 longitude.setText("Longtitude: " + String.format("%.6f °", location.getLongitude()));
@@ -187,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
         String ime = lokacija.getText().toString().trim();
         if (ime.matches("")) {
             Toast.makeText(this, "Molimo Vas unesite lokaciju", Toast.LENGTH_SHORT).show();
-            return;
 
         } else {
 
@@ -234,6 +212,16 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START) ;
+        } else {
+            super.onBackPressed();
         }
     }
 }
